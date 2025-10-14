@@ -9,6 +9,10 @@
 #include <fcntl.h>
 #include <cstring>
 #include <cstdlib>
+<<<<<<< HEAD
+=======
+#include <unordered_map>
+>>>>>>> a97bba6 (Update versión final)
 
 using namespace std;
 
@@ -168,6 +172,8 @@ void ejecutar_pipe(vector<char*> cmd1, vector<char*> cmd2) {
 // ======================================================
 int main() {
     string comando;
+    vector<string> historial;
+    unordered_map<string, string> alias;
 
     cout << "=== MiniShell Mejorada ===" << endl;
     cout << "Soporta:\n"
@@ -176,6 +182,10 @@ int main() {
          << "  - Pipes (|)\n"
          << "  - Redirección (> y >>)\n"
          << "  - Segundo plano (&)\n"
+<<<<<<< HEAD
+=======
+         << "  - Built-ins: cd, help, history, alias\n"
+>>>>>>> a97bba6 (Update versión final)
          << "  - Comando salir\n\n";
 
     while (true) {
@@ -183,11 +193,22 @@ int main() {
         getline(cin, comando);
         if (comando.empty()) continue;
 
+<<<<<<< HEAD
+=======
+        // Guardar en historial
+        historial.push_back(comando);
+
+        // Limpieza de procesos zombie
+        while (waitpid(-1, nullptr, WNOHANG) > 0);
+
+        // Detectar salida
+>>>>>>> a97bba6 (Update versión final)
         if (comando == "salir") {
             cout << "Saliendo de la mini-shell..." << endl;
             break;
         }
 
+<<<<<<< HEAD
         // Limpieza de procesos zombie
         while (waitpid(-1, nullptr, WNOHANG) > 0);
 
@@ -196,6 +217,14 @@ int main() {
         if (!comando.empty() && comando.back() == '&') {
             en_fondo = true;
             comando.pop_back();
+=======
+        // Alias sustitución
+        stringstream ss(comando);
+        string primerToken;
+        ss >> primerToken;
+        if (alias.find(primerToken) != alias.end()) {
+            comando = alias[primerToken] + comando.substr(primerToken.size());
+>>>>>>> a97bba6 (Update versión final)
         }
 
         // Eliminar espacios innecesarios
@@ -205,7 +234,69 @@ int main() {
         };
         trim(comando);
 
+<<<<<<< HEAD
         // PIPE
+=======
+        // ------------------------------------
+        //  BUILT-INS
+        // ------------------------------------
+        if (comando.rfind("cd", 0) == 0) {
+            string path = comando.size() > 2 ? comando.substr(3) : getenv("HOME");
+            trim(path);
+            if (chdir(path.c_str()) != 0)
+                perror("Error al cambiar de directorio");
+            continue;
+        }
+
+        if (comando == "help") {
+            cout << "=== AYUDA DE MINISHELL ===\n"
+                 << "Comandos internos disponibles:\n"
+                 << "  cd [dir]     - Cambiar de directorio\n"
+                 << "  help         - Mostrar esta ayuda\n"
+                 << "  history      - Mostrar historial de comandos\n"
+                 << "  alias n='c'  - Crear alias (ej: alias ll='ls -l')\n"
+                 << "  salir        - Cerrar la minishell\n\n";
+            continue;
+        }
+
+        if (comando == "history") {
+            cout << "=== HISTORIAL ===" << endl;
+            for (size_t i = 0; i < historial.size(); ++i)
+                cout << i + 1 << ": " << historial[i] << endl;
+            continue;
+        }
+
+        if (comando.rfind("alias", 0) == 0) {
+            size_t eq_pos = comando.find('=');
+            if (eq_pos != string::npos) {
+                string nombre = comando.substr(6, eq_pos - 6);
+                string valor = comando.substr(eq_pos + 1);
+                trim(nombre);
+                trim(valor);
+                if (!valor.empty() && valor.front() == '\'' && valor.back() == '\'')
+                    valor = valor.substr(1, valor.size() - 2);
+                alias[nombre] = valor;
+                cout << "Alias agregado: " << nombre << "='" << valor << "'" << endl;
+            } else {
+                cout << "Uso: alias nombre='comando'" << endl;
+            }
+            continue;
+        }
+
+        // ------------------------------------
+        //  SEGUNDO PLANO
+        // ------------------------------------
+        bool en_fondo = false;
+        if (!comando.empty() && comando.back() == '&') {
+            en_fondo = true;
+            comando.pop_back();
+        }
+        trim(comando);
+
+        // ------------------------------------
+        //  PIPE
+        // ------------------------------------
+>>>>>>> a97bba6 (Update versión final)
         size_t pipe_pos = comando.find('|');
         if (pipe_pos != string::npos) {
             string left = comando.substr(0, pipe_pos);
@@ -223,7 +314,13 @@ int main() {
             continue;
         }
 
+<<<<<<< HEAD
         // REDIRECCIÓN
+=======
+        // ------------------------------------
+        //  REDIRECCIÓN
+        // ------------------------------------
+>>>>>>> a97bba6 (Update versión final)
         size_t redir_pos = comando.find('>');
         if (redir_pos != string::npos) {
             bool append = (comando.find(">>") != string::npos);
@@ -238,7 +335,13 @@ int main() {
             continue;
         }
 
+<<<<<<< HEAD
         // COMANDO NORMAL
+=======
+        // ------------------------------------
+        //  COMANDO NORMAL
+        // ------------------------------------
+>>>>>>> a97bba6 (Update versión final)
         vector<char*> args = parse_command(comando);
         ejecutar(args, en_fondo);
         liberar_args(args);
@@ -246,6 +349,7 @@ int main() {
 
     return 0;
 }
+
 
 /*
 =======================================================
